@@ -10,35 +10,37 @@ export default function AddSchool() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
-
   const emailPattern = /^\S+@\S+\.\S+$/i;
   const mobilePattern = /^[0-9]{10}$/;
 
   const onSubmit = async (data) => {
-    setMessage("");
-    if (!data.image || !data.image[0]) {
-      setError("image", { type: "required", message: "Please choose an image." });
-      return;
-    }
-    setLoading(true);
-    try {
-      const fd = new FormData();
-      ["name", "address", "city", "state", "contact", "email_id"].forEach(k => fd.append(k, data[k] ?? ""));
-      fd.append("page", data.input[0]);
-      const res = await axios.post("/api/addBook", fd, {
+  setMessage("");
+  if (!data.image || !data.image[0]) {
+    setError("image", { type: "required", message: "Please choose an image." });
+    return;
+  }
+  setLoading(true);
+  try {
+    const fd = new FormData();
+    ["name", "address", "city", "state", "contact", "email_id"].forEach(k => fd.append(k, data[k] ?? ""));
+    fd.append("image", data.image[0]); //correct field
+    const res = await axios.post("/api/addBook", fd, {
       withCredentials: true,
-    });      
-      setMessage(res.data?.message || "Submitted successfully");
-      reset(); setPreview(null);
-    } catch (err) {
-      const server = err?.response?.data;
-      if (server?.fieldErrors) {
-        Object.entries(server.fieldErrors).forEach(([f, m]) => setError(f, { type: "server", message: m }));
-        setMessage(Object.values(server.fieldErrors)[0]);
-      } else setMessage(server?.error || err.message || "Error submitting form.");
-      console.error("Submit error:", err);
-    } finally { setLoading(false); }
-  };
+    });
+    setMessage(res.data?.message || "Submitted successfully");
+    reset(); setPreview(null);
+  } catch (err) {
+    const server = err?.response?.data;
+    if (server?.fieldErrors) {
+      Object.entries(server.fieldErrors).forEach(([f, m]) => setError(f, { type: "server", message: m }));
+      setMessage(Object.values(server.fieldErrors)[0]);
+    } else setMessage(server?.error || err.message || "Error submitting form.");
+    console.error("Submit error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const fileOnChange = (e) => { const f = e.target.files?.[0]; if (f) setPreview(URL.createObjectURL(f)); };
 
