@@ -24,19 +24,23 @@ export default function AddSchool() {
     const fd = new FormData();
     ["name", "address", "city", "state", "contact", "email_id"].forEach(k => fd.append(k, data[k] ?? ""));
     fd.append("image", data.image[0]); //correct field
-    const res = await axios.post("/api/addBook", fd, {
+    const res = await axios.post("/api/addSchool", fd, {
       withCredentials: true,
     });
     setMessage(res.data?.message || "Submitted successfully");
     reset(); setPreview(null);
   } catch (err) {
-    const server = err?.response?.data;
-    if (server?.fieldErrors) {
-      Object.entries(server.fieldErrors).forEach(([f, m]) => setError(f, { type: "server", message: m }));
-      setMessage(Object.values(server.fieldErrors)[0]);
-    } else setMessage(server?.error || err.message || "Error submitting form.");
-    console.error("Submit error:", err);
-  } finally {
+  const server = err?.response?.data;
+  if (err.response?.status === 409) {
+    setMessage("A school with this email or contact already exists.");
+  } else if (server?.fieldErrors) {
+    Object.entries(server.fieldErrors).forEach(([f, m]) => setError(f, { type: "server", message: m }));
+    setMessage(Object.values(server.fieldErrors)[0]);
+  } else {
+    setMessage(server?.error || err.message || "Error submitting form.");
+  }
+  console.error("Submit error:", err);
+} finally {
     setLoading(false);
   }
 };
