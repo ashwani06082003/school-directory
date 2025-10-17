@@ -25,10 +25,9 @@ export default function AddSchool() {
       const fd = new FormData();
       ["name", "address", "city", "state", "contact", "email_id"].forEach(k => fd.append(k, data[k] ?? ""));
       fd.append("page", data.input[0]);
-      await axios.post("/api/addBook", fd, {
-        withCredentials: true, // send cookies if session-based
-      });
-      
+      const res = await axios.post("/api/addBook", fd, {
+      withCredentials: true,
+    });      
       setMessage(res.data?.message || "Submitted successfully");
       reset(); setPreview(null);
     } catch (err) {
