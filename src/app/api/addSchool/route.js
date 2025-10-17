@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { db } from "@/app/lib/db";
-
+import { db } from "../../lib/db";
 export const config = { api: { bodyParser: false } };
 
 const saveFile = async (file) => {
